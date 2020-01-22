@@ -27,3 +27,18 @@ RUN pip install Pillow
 # Add sudo, because we need it to kill the swap memory every so often
 # http://www.yourownlinux.com/2013/10/how-to-free-up-release-unused-cached-memory-in-linux.html
 RUN apk --no-cache add sudo
+
+#Run in Civis Jupyter notebook
+RUN pip install civis-jupyter-notebook && \
+    civis-jupyter-notebooks-install
+
+# Add Tini
+ENV TINI_VERSION v0.16.1
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
+ENV DEFAULT_KERNEL python3  # set to one of python3, python2 or ir
+EXPOSE 8888
+WORKDIR /root/work
+ENTRYPOINT ["/tini", "--"]
+CMD ["civis-jupyter-notebooks-start"]
